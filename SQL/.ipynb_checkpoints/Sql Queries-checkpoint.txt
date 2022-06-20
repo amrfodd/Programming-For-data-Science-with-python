@@ -1,0 +1,164 @@
+/*Query-1
+Set-1 Question-1
+*/
+
+select title as film_title, 
+        name as category_name, 
+        count(*) as rental_count
+from (select * from film as f
+join film_category as fc
+on fc.film_id = f.film_id
+join category as c
+on c.category_id = fc.category_id
+join inventory as i
+on i.film_id = fc.film_id
+join rental as r
+on r.inventory_id = i.inventory_id
+
+where name = 'Music'
+or name = 'Animation'
+or name = 'Children'
+or name = 'Classics'
+or name = 'Comedy'
+or name = 'Family'
+
+order by title) AS new_table
+
+group by film_title,
+        category_name
+order by category_name, film_title;
+
+
+
+/*Query-2
+Set-1 Question-2
+*/
+
+select
+title,
+  c.name,
+  f.rental_duration,
+  NTILE(4) OVER (order by f.rental_duration) as standard_quartile
+
+from category as c
+join film_category as fc
+  on c.category_id = fc.category_id
+
+join film as f
+  on fc.film_id = f.film_id
+
+where c.name = 'Music'
+or name = 'Animation'
+or name = 'Children'
+or name = 'Classics'
+or name = 'Comedy'
+or name = 'Family'
+
+
+
+/*Query-3
+Set-1 Question-3
+*/
+
+select 
+name, standard_quartile,
+  COUNT(standard_quartile)
+from (SELECT
+title,
+  c.name,
+  f.rental_duration,
+  NTILE(4) OVER (ORDER BY f.rental_duration) AS standard_quartile
+
+FROM category AS c
+JOIN film_category AS fc
+  ON c.category_id = fc.category_id
+
+JOIN film AS f
+  ON fc.film_id = f.film_id
+
+WHERE c.name = 'Music'
+or name = 'Animation'
+or name = 'Children'
+or name = 'Classics'
+or name = 'Comedy'
+or name = 'Family') as new_table
+
+group by name, standard_quartile
+
+order by name, standard_quartile;
+
+
+
+/*Query-4
+Set-2 Question-1
+*/
+
+
+select
+  date_part('month', rental_date) as rental_month,
+  date_part('year', rental_date) as rental_year,
+  s.store_id AS Store_id,
+  COUNT(*) as Count_rentals
+from rental as r
+join  staff as s
+  ON r.staff_id = s.staff_id
+group by rental_month,
+         rental_year,
+         Store_id
+order by Count_rentals DESC;
+
+
+/*Query-5
+Set-2 Question-2
+*/
+
+SELECT
+  TO_CHAR(pay.payment_date, 'month') AS pay_mon,
+  t1.fullname,
+  COUNT(*) AS pay_countpermon,
+  SUM(pay.amount) AS pay_amount
+
+FROM (SELECT
+  p.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS fullname,
+  SUM(p.amount) pay_amount
+FROM payment AS p
+JOIN customer AS c
+  ON p.customer_id = c.customer_id
+GROUP BY 1,
+         2
+ORDER BY 3 DESC
+LIMIT 10)
+
+JOIN payment AS pay
+  ON t1.customer_id = pay.customer_id
+WHERE DATE_TRUNC('month', pay.payment_date) BETWEEN '2007-01-01' AND '2008-01-01'
+
+GROUP BY 1,
+         2
+ORDER BY 2, EXTRACT(MONTH FROM TO_DATE(TO_CHAR(pay.payment_date,'month'), 'Month'));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
